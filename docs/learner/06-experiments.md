@@ -56,7 +56,7 @@ await dataset.runExperiment({
   name: "Dad IT Support Agent experiment",
   runName,           // unique label for this run; shows up in the Experiments tab
   description: "...",
-  metadata: { model: env.openaiModel },
+  metadata: { model: env.openaiModel, judgeModel: env.judgeModel },
   maxConcurrency: 1, // run items one at a time
 
   task: async (item) => {
@@ -83,7 +83,7 @@ Three things to understand:
 
 - **`task`** is *your application logic* — we call straight into `runSupportConversation(...)`, which means every trace this script produces looks identical to a production trace.
 - **`evaluators`** is a list of callbacks. Each evaluator runs after `task` returns and attaches a score to the item trace. Here we use one deterministic check and one LLM-as-a-judge check.
-- **`runName`** groups every per-item trace into one row in the Langfuse Experiments view. Pick a name that changes per run (we include the timestamp) so two runs don't collide.
+- **`runName`** groups every per-item trace into one row in the Langfuse Experiments view. Pick a name that changes per run (we include the agent model and a timestamp) so two runs don't collide and you can tell them apart at a glance.
 
 ## Step 2 — Review the deterministic `keyword_overlap` evaluator
 
@@ -107,7 +107,7 @@ Why run the judge as a callback instead of a Langfuse Platform evaluator?
 - The judge prompt and model live next to the experiment runner in git.
 - Both scores appear in the script's printed summary as soon as the run finishes.
 
-The judge uses your existing `OPENAI_API_KEY` / `OPENAI_MODEL` from `.env` — the same credentials the agent already uses. You do **not** need the Langfuse-side default evaluator model from session 4 for this chapter.
+The judge uses your existing `OPENAI_API_KEY` from `.env`, and its own `JUDGE_MODEL` setting, which `.env.example` sets to the same model as the agent. The judge model is a separate setting on purpose: when you later try a different agent model, both runs are still scored by the same judge, so the scores stay comparable. The script prints both models before the run starts. You do **not** need the Langfuse-side default evaluator model from session 4 for this chapter.
 
 ## Step 4 — Run the dataset
 
