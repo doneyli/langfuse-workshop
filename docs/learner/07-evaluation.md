@@ -30,7 +30,7 @@ This is also what lets you close the loop and **ship with confidence**: when the
 
 This chapter is framed around prompt iteration because changing the prompt is the lowest-friction lever. The same workflow applies if you change:
 
-- **The model** — try a stronger or cheaper one and rerun.
+- **The model** — try a stronger or cheaper one and rerun. Change `OPENAI_MODEL` only and leave `JUDGE_MODEL` as it is, so both runs are scored by the same judge.
 - **The context** — add or remove fields from the system prompt or tool results.
 - **The agent architecture** — add a tool, change tool ordering, change retries.
 - **The prompt** — what we'll do here.
