@@ -6,7 +6,7 @@
  *   2. Roll the per-item traces into one experiment run row.
  *   3. Attach callback evaluators from runExperiment:
  *      - keyword_overlap (deterministic)
- *      - correctness (LLM-as-a-judge)
+ *      - correctness (LLM-as-a-judge, scored by JUDGE_MODEL)
  *
  * Usage:
  *   npm run dataset:run
@@ -63,6 +63,8 @@ function keywordOverlap(answer: string, expectedKeywords: string[]) {
 //        material meaning in idealAnswer? Returns 0 or 1.
 //        Runs as a runExperiment callback so scores land with the run —
 //        no Langfuse Platform evaluator setup required first.
+//        Uses JUDGE_MODEL, not OPENAI_MODEL, so two runs with different
+//        agent models are still scored by the same judge.
 const CORRECTNESS_PROMPT = `You are an expert semantic-equivalence evaluator for AI systems.
 You will receive an actual assistant output and an expected output.
 Your job is to decide whether the actual output preserves the expected output's material meaning.
@@ -123,7 +125,7 @@ function parseCorrectnessScore(value: unknown): boolean {
 async function scoreCorrectness(answer: string, idealAnswer: string) {
   const openai = new OpenAI({ apiKey: env.openaiApiKey });
   const response = await openai.chat.completions.create({
-    model: env.openaiModel,
+    model: env.judgeModel,
     response_format: { type: "json_object" },
     messages: [
       {
@@ -186,7 +188,8 @@ async function main() {
   });
 
   const dataset = await langfuse.dataset.get(env.datasetName);
-  const runName = `dad-it-support-${new Date().toISOString()}`;
+  const runName = `dad-it-support-${env.openaiModel}-${new Date().toISOString()}`;
+  console.log(`Agent model: ${env.openaiModel} | Judge model: ${env.judgeModel}`);
 
   // --- 6. runExperiment iterates the dataset, calls `task` for each
   //        item, and records every per-item trace + score under a
@@ -196,7 +199,8 @@ async function main() {
     runName,
     description: "Workshop dataset run for the Dad IT Support Agent",
     metadata: {
-      model: env.openaiModel
+      model: env.openaiModel,
+      judgeModel: env.judgeModel
     },
     maxConcurrency: 1,
     // `task` runs the agent on one dataset item. The return value
