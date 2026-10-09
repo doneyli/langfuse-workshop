@@ -24,4 +24,5 @@ Learner guide: [07 Evaluate a Change](../learner/07-evaluation.md)
 ## Watch for
 
 - Learners changing both model and prompt at the same time, making the comparison hard to interpret.
+- Learners changing `JUDGE_MODEL` along with `OPENAI_MODEL`. If the judge changes between runs, the `correctness` scores are no longer comparable.
 - Learners editing the prompt in the UI but forgetting they need a new saved version promoted to the label the app fetches.
