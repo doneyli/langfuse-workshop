@@ -4,6 +4,9 @@ export const env = {
   port: Number(process.env.PORT ?? 8787),
   openaiApiKey: process.env.OPENAI_API_KEY ?? "",
   openaiModel: process.env.OPENAI_MODEL ?? "gpt-5.5-2026-04-23",
+  // The correctness judge in scripts/run-dataset.ts. Separate from openaiModel
+  // so swapping the agent model does not also swap the judge that scores it.
+  judgeModel: process.env.JUDGE_MODEL ?? process.env.OPENAI_MODEL ?? "gpt-5.5-2026-04-23",
   langfusePublicKey: process.env.LANGFUSE_PUBLIC_KEY ?? "",
   langfuseSecretKey: process.env.LANGFUSE_SECRET_KEY ?? "",
   langfuseBaseUrl: process.env.LANGFUSE_BASE_URL ?? "https://cloud.langfuse.com",
